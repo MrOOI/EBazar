@@ -1,0 +1,88 @@
+﻿@using PagedList.Mvc
+@model IEnumerable<EBazar.Models.Product>
+
+@{
+    ViewData["Title"] = "GetAllProduct";
+}
+
+<h1>All products</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<form asp-controller="Home" asp-action="GetAllProduct">
+    <p>
+        Max price: <input type="text" name="maxPrice" />
+        Min Price: <input type="text" name="minPrice" />
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+<form asp-controller="Home" asp-action="GetAllProduct">
+    <p>
+        Search: <input type="text" name="searchString" />
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+
+<table class="table">
+    <thead>
+    
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.ActionLink($"{@Html.DisplayNameFor(model => model.Name)}", "GetAllproduct", new { sortOrder = ViewBag.NameSortParm })               
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AddTime)
+            </th>
+            <th>
+                @Html.ActionLink($"{@Html.DisplayNameFor(model => model.ExpireTime)}", "GetAllProduct", new { sortOrder = ViewBag.DateSortParm })     
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Cost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AddTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpireTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
