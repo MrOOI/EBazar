@@ -1,5 +1,4 @@
-﻿@using PagedList.Mvc
-@model IEnumerable<EBazar.Models.Product>
+﻿@model IndexViewModel
 
 @{
     ViewData["Title"] = "GetAllProduct";
@@ -11,50 +10,37 @@
     <a asp-action="Create">Create New</a>
 </p>
 
-<form asp-controller="Home" asp-action="GetAllProduct">
-    <p>
-        Max price: <input type="text" name="maxPrice" />
-        Min Price: <input type="text" name="minPrice" />
-        <input type="submit" value="Filter" />
-    </p>
-</form>
-<form asp-controller="Home" asp-action="GetAllProduct">
-    <p>
-        Search: <input type="text" name="searchString" />
-        <input type="submit" value="Filter" />
-    </p>
-</form>
+@using (Html.BeginForm("GetAllProduct", "Home", FormMethod.Get))
+  {
+      <p>
+          Max price @Html.TextBox("maxPrice", ViewBag.maxPrice as string)
+          Min price @Html.TextBox("minPrice", ViewBag.minPrice as string)
+          Search  @Html.TextBox("searchString", ViewBag.searchString as string)
+          <input type="submit" value="Filter" />
+      </p>
 
-<table class="table">
-    <thead>
-    
-        <tr>
+    <table class="table">
+        <thead>         
+            <tr>
+                <th>
+                    ID
+                </th>
+                @{
+                    string[] names = new string[] { "Nomi", " Description", "Cost", "AddTime", "ExpireTime" };
+                    for(int i=0; i<5; i++)
+                    {
+                        <th>
+                            @Html.ActionLink($"{names[i]}", "GetAllProduct", new { sortOrder = ViewBag.DateSortParm, searchString = ViewBag.searchString, maxPrice = ViewBag.maxPrice, minPrice = ViewBag.minPrice, page = ViewBag.page, indexColumn = i })               
+                        </th>
+                    }
+                }
             <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.ActionLink($"{@Html.DisplayNameFor(model => model.Name)}", "GetAllproduct", new { sortOrder = ViewBag.NameSortParm })               
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Cost)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AddTime)
-            </th>
-            <th>
-                @Html.ActionLink($"{@Html.DisplayNameFor(model => model.ExpireTime)}", "GetAllProduct", new { sortOrder = ViewBag.DateSortParm })     
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th></th>
+                Miqdor
+            </th>       
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model) {
+        @foreach (var item in Model.Items) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Id)
@@ -83,6 +69,35 @@
                 @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
             </td>
         </tr>
-}
+      }
     </tbody>
-</table>
+    </table>
+
+    @if (Model.Pager.EndPage > 1)
+				{
+					<ul class="pagination">
+						@if (Model.Pager.CurrentPage > 1)
+						{
+							<li>
+                                @Html.ActionLink($"First", "GetALlProduct", new {sortOrder = ViewBag.DateSortParm, searchString = ViewBag.searchString, maxPrice = ViewBag.maxPrice, minPrice=ViewBag.minPrice, page=1})
+								
+							</li>					
+						}
+                       
+						@for (var page = Model.Pager.StartPage; page <= Model.Pager.EndPage; page++)
+						{
+							<li class="@(page == Model.Pager.CurrentPage ? "active" : "")">
+                                @Html.ActionLink($"{@page}", "GetALlProduct", new {sortOrder = ViewBag.DateSortParm, searchString = ViewBag.searchString, maxPrice = ViewBag.maxPrice, minPrice=ViewBag.minPrice, page=page})
+							</li>
+						}
+
+						@if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+						{
+							<li>
+                                @Html.ActionLink($"Last", "GetALlProduct", new {sortOrder = ViewBag.DateSortParm, searchString = ViewBag.searchString, maxPrice = ViewBag.maxPrice, minPrice=ViewBag.minPrice, page=Model.Pager.EndPage})
+							</li>
+						}
+					</ul>
+				}
+
+  }

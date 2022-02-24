@@ -2,9 +2,7 @@
 using EBazar.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PagedList;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,53 +24,109 @@ namespace EBazar.Controllers
             return View();
         }
 
-
-
-        public IActionResult GetAllProduct(string maxPrice, string minPrice, string sortOrder, string searchString, int? page)
+        [HttpGet]
+        public IActionResult GetAllProduct(string maxPrice, string minPrice, string sortOrder, string searchString, int indexColumn, int? page)
         {
-            //PageInfo pageInfo = new PageInfo();
-            //pageInfo.PageSize = 10;
-            //pageInfo.TotalItems = productContext.Products.Count();
-            int pageSize = 10;
-            int pageNumber = (page ?? 1);
 
-            var product = from item in productContext.Products select item;
-            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.maxPrice = maxPrice;
+            ViewBag.minPrice = minPrice;
+            ViewBag.searchString = searchString;
+            ViewBag.page = page;
             ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewBag.IndexColumn = indexColumn;
 
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                product = product.Where(s => s.Name.Contains(searchString));
+
+            IndexViewModel indexModel = new IndexViewModel();
+
+            IQueryable<Product> products = productContext.Products.
+                         Where(s => (searchString == null || s.Name.Contains(searchString))
+                            && (maxPrice == null || s.Cost <= int.Parse(maxPrice))
+                            && (minPrice == null || s.Cost >= int.Parse(minPrice)));
+
+            Pager pager = new Pager(products.Count(), page);
+
+            switch (indexColumn) 
+            { 
+                case 0:
+                    indexModel = sortOrder == "Date" ?
+                    new IndexViewModel
+                    {
+                        Items = products.OrderBy(s => s.Name).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    } : new IndexViewModel
+                    {
+                        Items = products.OrderByDescending(s => s.Name).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    };
+                    break;
+                case 1:
+                    indexModel = sortOrder == "Date" ?
+                    new IndexViewModel
+                    {
+                        Items = products.OrderBy(s => s.Description).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    } : new IndexViewModel
+                    {
+                        Items = products.OrderByDescending(s => s.Description).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    };
+                    break;
+                case 2:
+                    indexModel = sortOrder == "Date" ?
+                    new IndexViewModel
+                    {
+                        Items = products.OrderBy(s => s.Cost).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    } : new IndexViewModel
+                    {
+                        Items = products.OrderByDescending(s => s.Cost).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    };
+                    break;
+                case 3:
+                    indexModel = sortOrder == "Date" ?
+                    new IndexViewModel
+                    {
+                        Items = products.OrderBy(s => s.AddTime).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    } : new IndexViewModel
+                    {
+                        Items = products.OrderByDescending(s => s.AddTime).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    };
+                    break;
+                case 4:
+                    indexModel = sortOrder == "Date" ?
+                    new IndexViewModel
+                    {
+                        Items = products.OrderBy(s => s.ExpireTime).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    } : new IndexViewModel 
+                    {
+                        Items = products.OrderByDescending(s => s.ExpireTime).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    };
+                    break;
+                 default:
+                    indexModel = sortOrder == "Date" ?
+                    new IndexViewModel
+                    {
+                        Items = products.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    } : new IndexViewModel
+                    {
+                        Items = products.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                        Pager = pager
+                    };
+                    break;
             }
 
-            if (!String.IsNullOrEmpty(maxPrice))
-            {
-                product = product.Where(s => s.Cost < int.Parse(maxPrice));
-            }
+            
 
-            if (!String.IsNullOrEmpty(minPrice))
-            {
-                product = product.Where(s => s.Cost > int.Parse(minPrice));
-            }
-            switch (sortOrder)
-            {
-                case "name_desc":
-                    product = product.OrderByDescending(s => s.Name);
-                    break;
-                case "Date":
-                    product = product.OrderBy(s => s.ExpireTime);
-                    break;
-                case "date_desc":
-                    product = product.OrderByDescending(s => s.AddTime);
-                    break;
-                default:
-                   
-                    break;
-            }
-
-
-            return View(product.ToPagedList(pageNumber, pageSize));
+            return View(indexModel);            
+            
         }
+       
 
         public IActionResult Create()
         {
@@ -85,6 +139,17 @@ namespace EBazar.Controllers
             productContext.SaveChanges();
             return RedirectToAction("Create");
         }
+
+        public IActionResult Edit()
+        {
+            return View();
+        }
+
+        public IActionResult Delete()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();
