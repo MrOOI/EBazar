@@ -1,0 +1,146 @@
+﻿@{
+    Layout = "_Layout";
+}
+<div id="app">
+    <h1>All Product with vue</h1>            
+        <div>
+            <div class="d-flex">
+                <input v-model="maxPrice" type="number" 
+                placeholder="Maximal Price..." class="form-control m-2"/>         
+                  
+                <input v-model="minPrice" type="number" 
+                 placeholder="Minimal Price..." class="form-control m-2"/>
+            
+
+                <input v-model="searchString" type="text" 
+                placeholder="Search..." class="form-control my-2"/>
+         
+              </div>            
+              <div class="d-flex flex-row-reverse">        
+                   <button v-on:click="filtering" class="btn btn-primary mt-1 mb-3" >Filter</button>
+              </div>
+        </div>           
+        
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>
+                    <button class="btn btn-success mt-1 mb-3">Id</button>
+                </th class="align-middle">
+                 @{
+                    string[] names = new string[] { "Nomi", " Description", "Cost", "AddTime", "ExpireTime" };
+                    for(int i=0; i<5; i++)
+                    {
+                        <th>
+                        <button v-on:click="sortAndFilter(@i)" class="btn btn-success mt-1 mb-3">@names[i]</button>                                     
+                        </th>
+                    }
+                  }
+                <th>
+                    <button class="btn btn-success mt-1 mb-3"> Miqdor</button>
+                </th>       
+            </tr>
+        </thead>
+        <tbody>         
+                <tr v-for="item in products.items">
+                    <td class="align-middle">{{item.id}}</td>
+                    <td class="align-middle">{{item.name}}</td>
+                    <td class="align-middle">{{item.description}}</td>
+                    <td class="align-middle">{{item.cost}}</td>
+                    <td class="align-middle">{{item.addTime}}</td>
+                    <td class="align-middle">{{item.expireTime}}</td>                
+                    <td class="align-middle">{{item.quantity}}</td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }, new {@class="bi bi-pencil-square"}) |
+                        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }, new {@class="bi bi-eye"}) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }, new {@class="bi bi-trash"})
+                    </td>
+                </tr>                  
+        </tbody>
+    </table>
+
+    <div class ="page_wrapper container">      
+        <button class="btn btn-primary m-1" v-for="page in products.pager.totalPages" v-on:click="paging(page)"> {{page}}</button>      
+    </div>  
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js" ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.0/axios.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script type="text/javascript">
+    let app = new Vue({
+        el: "#app",
+        data: {
+             products: [],
+             indexColumn:0,
+             searchString:"",
+             minPrice:null,
+             maxPrice:null, 
+             sortOrder:"",
+             page:null
+        },
+
+        //barchasini olish 
+        mounted: function() {
+            axios({
+                method: 'get',
+                url: '/home/getAllJson/',
+            }).then(response=>(this.products=response.data));
+        },
+
+        methods:{
+            //filter qilib olish
+            filtering:function(){
+            axios({
+            method: 'get',
+            url:'/home/getAllJson/',
+            params:{
+                "searchString":this.searchString,
+                "minPrice":this.minPrice,
+                "maxPrice":this.maxPrice,
+            }
+            }).then(response=>(this.products=response.data));
+          }, 
+
+
+          //bir vaqtda ham saralash va filterlash
+          sortAndFilter:function(index){
+            this.indexColumn = index;
+            if (this.sortOrder == 'ascending') this.sortOrder = 'descending';
+            else this.sortOrder = 'ascending';
+              axios ({
+                  method:'get',
+                  url:'/home/getAllJson/',
+                  params:{
+                      "indexColumn":this.indexColumn,
+                      "sortOrder":this.sortOrder,
+                      "searchString":this.searchString,
+                      "minPrice":this.minPrice,
+                      "maxPrice":this.maxPrice,
+                  },
+              }).then(response=>(this.products=response.data));
+          },
+
+          //pagination
+          paging:function(index){
+              this.page=index;
+              axios ({
+                  method:'get',
+                  url:'/home/getAllJson/',
+                  params:{
+                      "indexColumn":this.indexColumn,
+                      "sortOrder":this.sortOrder,
+                      "searchString":this.searchString,
+                      "minPrice":this.minPrice,
+                      "maxPrice":this.maxPrice,
+                      "page":this.page,
+                  },
+              }).then(response=>(this.products=response.data));
+          },
+        }
+    });
+</script>
+   
+
+
