@@ -26,7 +26,7 @@ namespace EBazar
         {
             services.AddControllersWithViews();
             services.AddMvc();
-            services.AddDbContext<ProductContext>(options => options.UseNpgsql(Configuration.GetConnectionString("")));
+            services.AddDbContext<ProductContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DefaultConString")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
