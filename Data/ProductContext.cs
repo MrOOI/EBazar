@@ -5,13 +5,15 @@ namespace EBazar.Data
 {
     public class ProductContext:DbContext
     {
-        public DbSet<Product> Products { get; set; }
-        public DbSet<ProductType> productsType { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public ProductContext(DbContextOptions<ProductContext> options) : base(options)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB; Database=Products; Trusted_Connection=True;");
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductType> ProductsTypes { get; set; }
 
     }
 }

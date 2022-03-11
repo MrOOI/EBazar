@@ -14,11 +14,12 @@ namespace EBazar.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        ProductContext productContext = new ProductContext();
+        private ProductContext _productContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ProductContext productContext)
         {
             _logger = logger;
+            _productContext=productContext;
         }
 
         public IActionResult Index()
@@ -40,7 +41,7 @@ namespace EBazar.Controllers
 
             IndexViewModel indexModel = new IndexViewModel();
 
-            IQueryable<Product> products = productContext.Products.
+            IQueryable<Product> products = _productContext.Products.
                          Where(s => (searchString == null || s.Name.Contains(searchString))
                             && (maxPrice == null || s.Cost <= int.Parse(maxPrice))
                             && (minPrice == null || s.Cost >= int.Parse(minPrice)));
@@ -131,7 +132,7 @@ namespace EBazar.Controllers
           
             IndexViewModel indexModel = new IndexViewModel();
 
-            IQueryable<Product> products = productContext.Products.
+            IQueryable<Product> products = _productContext.Products.
                          Where(s => (searchString == null || s.Name.Contains(searchString))
                             && (maxPrice == null || s.Cost <= int.Parse(maxPrice))
                             && (minPrice == null || s.Cost >= int.Parse(minPrice)));
@@ -186,8 +187,8 @@ namespace EBazar.Controllers
 
         public async Task<IActionResult> Add(Product product)
         {
-            await productContext.Products.AddAsync(product);
-            productContext.SaveChanges();
+            await _productContext.Products.AddAsync(product);
+            _productContext.SaveChanges();
             return RedirectToAction("Create");
         }
 
