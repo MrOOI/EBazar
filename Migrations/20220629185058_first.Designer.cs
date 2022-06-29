@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EBazar.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20220311223533_First")]
-    partial class First
+    [Migration("20220629185058_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
